@@ -1,10 +1,60 @@
 #-- coding:utf-8 --
 
-class resource_ec2 :
+class Client_S3:
+
+    def __init__(self, iamProfilename):
+        from boto3 import Session
+        self.session = Session(profile_name=iamProfilename)
+        self.s3 = self.session.client('s3')
+
+    def _getBucketList(self):
+        # Reference : http://boto3.readthedocs.io/en/latest/reference/services/s3.html#S3.Client.list_buckets
+        response = self.s3.list_buckets()
+        return(response)
+    
+    def _removeSpecificBucket(self, bucketName):
+        # Reference : http://boto3.readthedocs.io/en/latest/reference/services/s3.html#S3.Client.delete_bucket
+        response = self.s3.delete_bucket(
+            Bucket= bucketName
+        )
+        return(response)
+
+class Resource_Dynamodb :
+
+    def __init__(self,iamProfilename,tableName) :
+        from boto3 import Session
+        self.session = Session(profile_name=iamProfilename)
+        self.dynamodb = self.session.resource('dynamodb')
+        self.table = self.dynamodb.Table(tableName)
+
+    def _getCountOfQueryResult(self, partitionKey, condiTion):
+        from boto3.dynamodb.conditions import Key
+        # Reference1 : https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Python.04.html
+        # Reference2 : http://boto3.readthedocs.io/en/latest/reference/services/dynamodb.html#DynamoDB.Client.query
+        response = self.table.query(
+            KeyConditionExpression = Key(partitionKey).eq(condiTion),
+            Select = 'COUNT'
+        )
+        return(response)
+
+class Client_Dynamodb:
+
+    def __init__(self, iamProfilename):
+        from boto3 import Session
+        self.session = Session(profile_name=iamProfilename)
+        self.dynamodb = self.session.client('dynamodb')
+
+    def _getTableDescription(self, tableName):
+        # Reference1 : http://boto3.readthedocs.io/en/latest/reference/services/dynamodb.html#DynamoDB.Client.describe_table
+        response = self.dynamodb.describe_table(
+            TableName = tableName
+        )
+        return(response)
+
+class Resource_Ec2 :
 
     def __init__(self,iamProfilename) :
         from boto3 import Session
-        from boto3 import resource
         self.session = Session(profile_name=iamProfilename)
         self.ec2 = self.session.resource('ec2')        
 
@@ -58,13 +108,10 @@ class resource_ec2 :
         response = instance.terminate()
         return(response)
 
-
-
-class client_ec2 :
+class Client_Ec2 :
 
     def __init__(self,iamProfilename) :
         from boto3 import Session
-        from boto3 import client
         self.session = Session(profile_name=iamProfilename)
         self.ec2client = self.session.client('ec2')
 
@@ -86,13 +133,10 @@ class client_ec2 :
                 )
         return(response)
 
-
-
-class client_iam :
+class Client_Iam :
 
     def __init__(self,iamProfilename) :
         from boto3 import Session
-        from boto3 import client
         self.session = Session(profile_name=iamProfilename)
         self.iamclient = self.session.client('iam')
 
@@ -101,13 +145,10 @@ class client_iam :
         response = self.iamclient.list_instance_profiles()
         return(response)
 
-
-
-class client_ssm :
+class Client_Ssm :
 
     def __init__(self,iamProfilename) :
         from boto3 import Session
-        from boto3 import client
         self.session = Session(profile_name=iamProfilename)
         self.ssmclient = self.session.client('ssm')
 
@@ -180,6 +221,7 @@ class client_ssm :
                                 #.cancel_command Arguments Reference : http://boto3.readthedocs.io/en/latest/reference/services/ssm.html#SSM.Client.cancel_command
                             CommandId = commandId,
                         )
+        return(response)
 
     #Check the shell cmd return messages with InstanceId and ComamndId
     def _getRusultsAfterSendCmd(self,commandId,instanceid) :
