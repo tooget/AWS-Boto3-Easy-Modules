@@ -1,5 +1,8 @@
 # AWS-Boto3-Easy-Modules
-AWS SDK Boto3 직접 쓰는 게 너무 복잡해서 내가 직접 쓰려고 만드는 모듈입니다.
+`Deprecated`
+~~AWS SDK Boto3 직접 쓰는 게 너무 복잡해서 내가 직접 쓰려고 만드는 모듈입니다.~~
+[Sceptre](https://github.com/cloudreach/sceptre)와 [Troposphere](https://github.com/cloudtools/troposphere), [AWSCLI](https://aws.amazon.com/ko/cli/) 쓰세요~
+Boto3 쓰다가 결국 CloudFormation으로 옮겼습니다~
 ```
 awscli_manage_ec2.py
 ```
